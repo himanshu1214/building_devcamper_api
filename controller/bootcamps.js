@@ -4,16 +4,34 @@ const Bootcamp = require('../models/bootcamps');
 // @desc get all Bootcamps
 // @route /api/v1/bootcamps
 // @access Public
-exports.getBootcamps = (req, res, next) => {
-res.status(200).json({success: true, msg: `SHOW all bootcamps`});
+exports.getBootcamps = async (req, res, next) => {
+    try {
+        const bootcamps = await Bootcamp.find();
+        res.status(200).json({ success: true, data: bootcamps});
+    }
+        catch (err) {
+            res.status(400).json({ success: false});
+
+        }
 };
 
 
 // @desc get Bootcamp by id
 // @route /api/v1/bootcamps/:id
 // @access Public
-exports.getBootcamp = (req, res, next) => {
-res.status(200).json({ success: true, msg: `SHOW bootcamps number : ${req.params.id}` });
+exports.getBootcamp = async (req, res, next) => {
+try {
+    const bootcamp = await Bootcamp.findById(req.params.id);
+
+    if (!bootcamp) {
+        return res.status(400).json({success: false});
+    }
+    res.status(200).json({ success: true, data: bootcamp})
+}
+    catch (err) {
+        res.status(400).json({ success: false });
+
+    }
 };
 
 
@@ -32,7 +50,7 @@ exports.createBootcamp = async (req, res, next) => {
 
     // error handling
     try {
-        const bootcamp = await Bootcamp.create(req.body);
+        const bootcamp = await Bootcamp.create(req.body);  //mongoose method returns a Promise
         res.status(201).json({
             success: true,
             data: bootcamp
