@@ -1,30 +1,26 @@
 
 const Bootcamp = require('../models/bootcamps');
 const ErrorResponse = require('../utils/errorResponse');
+const AsyncHandler = require('../middleware/async');
 
 // @desc get all Bootcamps
 // @route /api/v1/bootcamps
 // @access Public
-exports.getBootcamps = async (req, res, next) => {
-    try {
+exports.getBootcamps = AsyncHandler(async (req, res, next) => {
         const bootcamps = await Bootcamp.find();
         if (!bootcamps) {
             return   next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`)); 
         }
         res.status(200).json({ success: true, count: bootcamps.length,  data: bootcamps});
     }
-        catch (err) {
-            next(err);
-
-        }
-};
+);
 
 
 // @desc get Bootcamp by id
 // @route /api/v1/bootcamps/:id
 // @access Public
-exports.getBootcamp = async (req, res, next) => {
-try {
+exports.getBootcamp = AsyncHandler(async (req, res, next) => {
+
     const bootcamp = await Bootcamp.findById(req.params.id);
 
     if (!bootcamp) {
@@ -32,12 +28,7 @@ try {
     }
     res.status(200).json({ success: true, data: bootcamp});
 }
-    catch (err) {
-        // res.status(400).json({ success: false });
-        next(err);
-
-    }
-};
+    );
 
 
 // @desc update Bootcamp by id
