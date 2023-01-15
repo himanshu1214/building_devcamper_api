@@ -8,10 +8,13 @@ const ErrorResponse = require('../utils/errorResponse');
 exports.getBootcamps = async (req, res, next) => {
     try {
         const bootcamps = await Bootcamp.find();
+        if (!bootcamps) {
+            return   next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`)); 
+        }
         res.status(200).json({ success: true, count: bootcamps.length,  data: bootcamps});
     }
         catch (err) {
-            res.status(400).json({ success: false});
+            next(err);
 
         }
 };
@@ -31,7 +34,7 @@ try {
 }
     catch (err) {
         // res.status(400).json({ success: false });
-        next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`));
+        next(err);
 
     }
 };
@@ -48,12 +51,12 @@ exports.updateBootcamp = async (req, res, next) => {
         });
     
         if (!bootcamp) {
-            return res.status(400).json({success: false});
+            return  next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`)); 
         }
         res.status(200).json({ success: true, data: bootcamp});
     }
         catch (err) {
-            res.status(400).json({ success: false });
+            next(err);
     
         }
 };
@@ -67,12 +70,15 @@ exports.createBootcamp = async (req, res, next) => {
     // error handling
     try {
         const bootcamp = await Bootcamp.create(req.body);  //mongoose method returns a Promise
+        if (!bootcamp) {
+            return   next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`)); 
+        }
         res.status(201).json({
             success: true,
             data: bootcamp
         });
     } catch (err) {
-            res.status(400).json({success: false});
+        next(err);
         }
     };
 
@@ -85,12 +91,12 @@ exports.deleteBootcamp = async (req, res, next) => {
         const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
     
         if (!bootcamp) {
-            return res.status(400).json({success: false});
+            return   next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`)); 
         }
         res.status(200).json({ success: true, data: {}});
     }
         catch (err) {
-            res.status(400).json({ success: false });
+            next(err);
     
         }
 };
