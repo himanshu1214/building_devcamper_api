@@ -1,5 +1,6 @@
 
 const Bootcamp = require('../models/bootcamps');
+const ErrorResponse = require('../utils/errorResponse');
 
 // @desc get all Bootcamps
 // @route /api/v1/bootcamps
@@ -24,13 +25,13 @@ try {
     const bootcamp = await Bootcamp.findById(req.params.id);
 
     if (!bootcamp) {
-        return res.status(400).json({success: false});
+        return   next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`)); // calls the next middleware inline in server.js and based on the error handler, the response the process
     }
     res.status(200).json({ success: true, data: bootcamp});
 }
     catch (err) {
         // res.status(400).json({ success: false });
-        next(err);
+        next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`));
 
     }
 };
