@@ -6,17 +6,27 @@ let error = { ...err };
 error.message = err.message;
 
 
-// Log to console
-console.log(err.stack.red);
-
 // Mongoose bad Object Id
-if (err.name == 'CastError') {
-    const message = `Bootcamp not found with the id : ${err.value} `;
+if (error.name == 'CastError') {
+    const message = `Bootcamp not found with the id : ${error.value} `;
     error = new ErrorResponse(message, 404);
 }
-res.status(500).json({
+
+// Duplication Erro
+if (err.code == 11000) {
+    const message = 'Bootcamp entered with duplicate values';
+    error = new ErrorResponse(message, 400);
+}
+
+// Missing input failures while creating bootcamps
+if (err.name == 'ValidationError') {
+    const message = Object.values(err.errors).map( val => val.message );
+    error = new ErrorResponse(message, 400);
+}
+
+res.status(error.statusCode || 500).json({
     success: false, 
-    error : error.message
+    error : error.message || 'Server Error'
 });
 };
 
