@@ -2,13 +2,12 @@ const fs = require("fs");
 const mongoose = require("mongoose");
 const colors = require('colors');
 const dotenv = require('dotenv');
-var encoder = new TextEncoder();   
 
 // add config4
 dotenv.config({ path: './config/config.env' });
 
 // load models
-const Bootcamp = require('./models/Bootcamp');
+const Bootcamp = require('./models/bootcamps');
 
 // Connect to DB
 mongoose.connect(process.env.MONGO_URI, {
@@ -23,7 +22,6 @@ const bootcamps = JSON.parse(
     fs.readFileSync(`${__dirname}/_data/bootcamps.json`, 'utf-8')
   );
 
-console.log(`data found : {bootcamps}`)
 const importData = async() => {
 try {
     await Bootcamp.create(bootcamps);
@@ -37,7 +35,7 @@ try {
 // Delete data
 const deleteData = async() => {
     try {
-        await Bootcamp.deleteMany(bootcamps);
+        await Bootcamp.deleteMany();
         console.log('Delete data in Db'.red.inverse);
         process.exit();
     } catch (err) {
