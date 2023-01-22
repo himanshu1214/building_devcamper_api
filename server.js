@@ -44,5 +44,5 @@ const server = app.listen(PORT, console.log(`Server hosted under NODE env : ${pr
 process.on('unhandledRejection',(err, promise) => {
     console.log(`Error: ${err.message}`.red.bold);
     server.close(() => process.exit(1));
-})
+});
 
