@@ -8,7 +8,11 @@ const AsyncHandler = require('../middleware/async');
 // @route /api/v1/bootcamps
 // @access Public
 exports.getBootcamps = AsyncHandler(async (req, res, next) => {
-        const bootcamps = await Bootcamp.find();
+        let query;
+        query_str = JSON.stringify(req.query);
+        query_str = query_str.replace(/\b(lt|lte|gt|gte|in)\b/g, match => `$${match}`);
+        query_json = Bootcamp.find(JSON.parse(query_str));
+        const bootcamps = await query_json;
         if (!bootcamps) {
             return   next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`)); 
         }
