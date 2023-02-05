@@ -8,10 +8,34 @@ const AsyncHandler = require('../middleware/async');
 // @route /api/v1/bootcamps
 // @access Public
 exports.getBootcamps = AsyncHandler(async (req, res, next) => {
-        let query;
-        query_str = JSON.stringify(req.query);
+        let query_json;
+
+        //Copy the query using a spread operator
+        const req_query = { ...req.query };
+
+        //Fields to remove
+        const remove_field = ['select', 'sort'];
+
+        //Loop over and delete the param
+        // ex: const filterByLength = (arr, len) => arr.filter(s => s.length <= len);
+        remove_field.forEach(param => delete req_query[param]); 
+
+        query_str = JSON.stringify(req_query);
         query_str = query_str.replace(/\b(lt|lte|gt|gte|in)\b/g, match => `$${match}`);
         query_json = Bootcamp.find(JSON.parse(query_str));
+
+        // Select fields
+        if (req.query.select){
+          const fields = req.query.select.split(',').join(' '); 
+          query_json = query_json.select(fields);
+        };
+
+        // Sort 
+        if (req.query.sort){
+            const sort_by = req.query.sort.split(',').join(' ');
+            query_json = query_json.sort(sort_by);
+        };
+        
         const bootcamps = await query_json;
         if (!bootcamps) {
             return   next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`)); 
