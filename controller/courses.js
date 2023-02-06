@@ -34,18 +34,24 @@ exports.getCourses = AsyncHandler(async (req, res, next) => {
 // @route /api/v1/course/:id
 // @access Public
 exports.getCourse = AsyncHandler(async (req, res, next) => {
+    
+    try {
     // adding the bootcamp using populate for every course
+
     const course = await Course.findById(req.params.id).populate({
         path: 'bootcamp',
         select: 'name description'
     });
     if (!course) { 
-        next(new ErrorResponse(`No course available with the id : ${req.param.id}`, 404))
+        return next(new ErrorResponse(`No course available with the id : ${req.param.id}`, 404))
     };
     res.status(200).json({
         success: true,
         data: course
     });
+} catch (err) {
+    next(err);
+    }
 });
 
 
@@ -61,7 +67,7 @@ exports.createCourse = AsyncHandler( async (req, res, next) => {
         const bootcamp = await Bootcamp.findById(req.params.bootcampId);
         console.log(bootcamp)
         if (!bootcamp) {
-            return   next( new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.bootcampId}`) ); 
+            return next( new ErrorResponse(`the courses doesnot exist with the id : ${req.params.bootcampId}`) ); 
         };
 
         const course = await Course.create(req.body);  //mongoose method returns a Promise
@@ -74,3 +80,51 @@ exports.createCourse = AsyncHandler( async (req, res, next) => {
         next(err);
         }
     }) ;
+
+
+// @desc Update Course for bootcamp in a particular BootcampId
+// @route /api/v1/courses/:Id
+// @access Private
+exports.updateCourse = AsyncHandler( async (req, res, next) => {
+
+    // error handling
+    try {
+        req.body.bootcamp = req.params.bootcampId;
+
+        let course = await Course.findById(req.params.id);
+        if (!course) {
+            return   next( new ErrorResponse(`the course doesnot exist with the id : ${req.params.id}`) ); 
+        };
+
+        course = await Course.findOneAndUpdate(req.params.id, req.body, {
+            new: true, 
+            runValidators: true
+        });  //mongoose method returns a Promise
+
+        res.status(200).json({
+            success: true,
+            data: course
+        });
+    } catch (err) {
+        next(err);
+        }
+    });
+
+
+// @desc delete Course by id
+// @route /api/v1/courses/:id
+// @access Private
+exports.deleteCourse = AsyncHandler( async(req, res, next) => {
+    try {
+        const course = await Course.findByIdAndDelete(req.params.id);
+
+        if (!course) {
+            return   next(new ErrorResponse(`the course doesnot exist with the id : ${req.params.id}`)); 
+        }
+        res.status(200).json({ success: true, data: {}});
+    }
+        catch (err) {
+            next(err);
+    
+        }
+});
