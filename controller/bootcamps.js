@@ -22,7 +22,7 @@ exports.getBootcamps = AsyncHandler(async (req, res, next) => {
 
         query_str = JSON.stringify(req_query);
         query_str = query_str.replace(/\b(lt|lte|gt|gte|in)\b/g, match => `$${match}`);
-        query_json = Bootcamp.find(JSON.parse(query_str));
+        query_json = Bootcamp.find(JSON.parse(query_str)).populate('courses');
 
         // Select fields
         if (req.query.select){
@@ -37,10 +37,8 @@ exports.getBootcamps = AsyncHandler(async (req, res, next) => {
         };
 
         // Pagination
-        console.log(req.query.page);
-        console.log(req.query.limit);
         const page = parseInt(req.query.page, 10) || 1;
-        const limit = parseInt(req.query.limit, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 25;
         const start_index = (page - 1) * limit;
         const end_index = page * limit;
         const total = await Bootcamp.countDocuments();
@@ -138,8 +136,9 @@ exports.createBootcamp = async (req, res, next) => {
 // @access Private
 exports.deleteBootcamp = async (req, res, next) => {
     try {
-        const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
-    
+        const bootcamp = await Bootcamp.findById(req.params.id);
+        bootcamp.remove();
+
         if (!bootcamp) {
             return   next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`)); 
         }
