@@ -1,7 +1,6 @@
 const Bootcamp = require('../models/bootcamps');
 const Course = require('../models/courses');
 const ErrorResponse = require('../utils/errorResponse');
-const geocoder = require('../utils/geocoder');
 const AsyncHandler = require('../middleware/async');
 
 
@@ -43,7 +42,7 @@ exports.getCourse = AsyncHandler(async (req, res, next) => {
         select: 'name description'
     });
     if (!course) { 
-        return next(new ErrorResponse(`No course available with the id : ${req.param.id}`, 404))
+        return next(new ErrorResponse(`No course available with the id : ${req.params.id}`, 404))
     };
     res.status(200).json({
         success: true,
