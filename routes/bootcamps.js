@@ -1,9 +1,16 @@
 const express = require('express');
 
-const { getBootcamps, getBootcamp, createBootcamp, updateBootcamp, deleteBootcamp, getBootcampInRadius } = require('../controller/bootcamps')
+const {
+  getBootcamps,
+  getBootcamp,
+  createBootcamp,
+  updateBootcamp,
+  deleteBootcamp,
+  getBootcampInRadius,
+} = require('../controller/bootcamps');
 
 // Include other resources and re-route into other routes ex: Courses
- const courseRouter = require('./courses');
+const courseRouter = require('./courses');
 
 const router = express.Router();
 

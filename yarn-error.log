@@ -1,0 +1,58 @@
+Arguments: 
+  /home/guru766/.nvm/versions/node/v16.19.0/bin/node /usr/share/yarn/bin/yarn.js install
+
+PATH: 
+  /home/guru766/.vscode-server/bin/e2816fe719a4026ffa1ee0189dc89bdfdbafb164/bin/remote-cli:/home/guru766/.nvm/versions/node/v16.19.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Program Files/Git/cmd:/mnt/c/ProgramData/chocolatey/bin:/mnt/c/Users/himan/AppData/Local/Google/Cloud SDK/google-cloud-sdk/bin:/mnt/c/Users/himan/AppData/Local/Google/Cloud SDK/google-cloud-sdk.staging/bin:/mnt/c/Program Files/CMake/bin:/mnt/c/Program Files/nodejs/:/mnt/c/Users/himan/AppData/Local/Programs/Python/Python310/Scripts/:/mnt/c/Users/himan/AppData/Local/Programs/Python/Python310/:/mnt/c/Users/himan/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/himan/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/himan/AppData/Local/Google/Cloud SDK/google-cloud-sdk/bin:/mnt/c/Program Files/nodejs:/mnt/c/Users/himan/AppData/Roaming/npm:/mnt/c/Program Files/JetBrains/IntelliJ IDEA 2022.3.1/bin:/snap/bin
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  16.19.0
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: EPERM: operation not permitted, copyfile '/home/guru766/.cache/yarn/v6/npm-tslib-1.14.1-cf2d38bdc34a134bcaf1091c41f6619e2f672d00-integrity/node_modules/tslib/README.md' -> '/mnt/c/Users/himan/OneDrive/Desktop/building_devcamper_api/node_modules/@aws-crypto/ie11-detection/node_modules/tslib/README.md'
+
+npm manifest: 
+  {
+    "name": "devcamper_api",
+    "version": "1.0.0",
+    "description": "dev camper api",
+    "main": "server.js",
+    "scripts": {
+      "start": "set NODE_ENV=production && node server",
+      "dev": "nodemon server",
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "lint": "eslint src/**/*.ts",
+      "format": "eslint src/**/*.ts --fix"
+    },
+    "author": "Himanshu Gupta",
+    "license": "MIT",
+    "dependencies": {
+      "color": "^4.2.3",
+      "colors": "^1.4.0",
+      "dotenv": "^16.0.3",
+      "express": "^4.18.2",
+      "mongoose": "^6.8.4",
+      "morgan": "^1.10.0",
+      "node": "^14.20.0",
+      "node-geocoder": "^4.2.0",
+      "slugify": "^1.6.5"
+    },
+    "devDependencies": {
+      "eslint": "^8.33.0",
+      "format": "^0.2.2",
+      "nodemon": "^2.0.20",
+      "npx": "^10.2.2",
+      "prettier": "2.8.3"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
