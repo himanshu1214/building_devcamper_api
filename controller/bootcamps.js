@@ -45,7 +45,6 @@ exports.getBootcamps = AsyncHandler(async (req, res, next) => {
   query_json = query_json.skip(start_index).limit(limit);
 
   const bootcamps = await query_json;
-  console.log(total);
   pagination = {};
 
   if (end_index < total) {

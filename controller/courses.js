@@ -3,8 +3,7 @@ const Course = require('../models/courses');
 const ErrorResponse = require('../utils/errorResponse');
 const AsyncHandler = require('../middleware/async');
 
-// @desc get all Courses
-// @route /api/v1/course
+// @desc get course for a specific bootcamp
 // @route /api/v1/bootcamps/:bootcampId/courses
 // @access Public
 exports.getCourses = AsyncHandler(async (req, res, next) => {
@@ -60,7 +59,6 @@ exports.createCourse = AsyncHandler(async (req, res, next) => {
     req.body.bootcamp = req.params.bootcampId;
 
     const bootcamp = await Bootcamp.findById(req.params.bootcampId);
-    console.log(bootcamp);
     if (!bootcamp) {
       return next(new ErrorResponse(`the courses doesnot exist with the id : ${req.params.bootcampId}`));
     }

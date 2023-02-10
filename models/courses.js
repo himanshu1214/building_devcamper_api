@@ -1,3 +1,4 @@
+const { group } = require('console');
 const mongoose = require('mongoose');
 
 const course_schema = new mongoose.Schema({
@@ -41,5 +42,52 @@ const course_schema = new mongoose.Schema({
     required: true,
   },
 });
+
+// static method to get average of the course tuitions
+course_schema.statics.getAverageCost = async function(bootcampId) {
+console.log('Calculating the average cost ..'.blue);
+
+// method return a promise so use await
+// inside aggregate make a pipeline inside a sqaure brakets
+// $avg is for average tuition fees
+const obj = await this.aggregate([
+  {
+    $match: { bootcamp: bootcampId }
+  }, 
+    {
+      $group: 
+      { 
+        _id: '$bootcamp', 
+        averageCost: { $avg: '$tuition' } 
+      }
+    }
+]);
+console.log(obj);
+try {
+await this.model('Bootcamp').findByIdAndUpdate(bootcampId, {
+  averageCost: Math.ceil(obj[0].averageCost / 10) * 10
+})
+} catch (err) {
+  console.log(err);
+
+};
+
+};
+
+// cal avg cost after addding course
+
+course_schema.post('save', async function(){
+  await this.constructor.getAverageCost(this.bootcamp);
+
+});
+
+// cal avg cost before removing course
+
+course_schema.pre('remove', async function(){
+  await this.constructor.getAverageCost(this.bootcamp);
+
+});
+
+
 
 module.exports = mongoose.model('Course', course_schema);

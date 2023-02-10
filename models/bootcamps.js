@@ -115,14 +115,12 @@ BootcampSchema.pre('save', async function (next) {
 });
 
 BootcampSchema.pre('save', function (next) {
-  console.log('Slugify run', this.name);
   this.slug = slugify(this.name, { lower: true });
   next();
 });
 
 // Cascade Delete the course for the bootcamp ID deleted
 BootcampSchema.pre('remove', async function (next) {
-  console.log(`Courses deleted from bootcamp : ${this._id}`);
   // instead of doing in the course model, calling the Course model and deleting the courses for the this._Id matches with the bootcamp
   await this.model('Course').deleteMany({ bootcamp: this._id });
   next();
