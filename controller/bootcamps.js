@@ -2,6 +2,8 @@ const Bootcamp = require('../models/bootcamps');
 const ErrorResponse = require('../utils/errorResponse');
 const geocoder = require('../utils/geocoder');
 const AsyncHandler = require('../middleware/async');
+const { param } = require('../routes/courses');
+const path = require('path');
 
 // @desc get all Bootcamps
 // @route /api/v1/bootcamps
@@ -138,7 +140,6 @@ exports.deleteBootcamp = async (req, res, next) => {
 // @desc get all the bootcamps for the given lat and long and distance the loc
 // @route /api/v1/bootcamps/radius/:zipcode/:distance
 // @access Private
-
 exports.getBootcampInRadius = AsyncHandler(async (req, res, next) => {
   const { distance, zipcode } = req.params;
   const loc = await geocoder.geocode(zipcode);
@@ -160,4 +161,53 @@ exports.getBootcampInRadius = AsyncHandler(async (req, res, next) => {
     count: bootcamps.length,
     data: bootcamps,
   });
+  
 });
+
+// @desc delete Bootcamp by id
+// @route /api/v1/bootcamp/:id/photo
+// @access Private
+
+
+exports.uploadBootcampPhoto = AsyncHandler(async (req, res, next) => {
+  const bootcamps = await Bootcamp.findById(req.params.id);
+  if (!bootcamps){
+    return next(
+      new ErrorResponse(`Bootcamp not found with ${req.params.id}`, 404)
+    );
+  }
+
+  if (!req.files){
+    return next(new ErrorResponse(
+      `Please upload an image`, 404
+    ));
+  }
+
+  const file = req.files.file;
+
+
+  if (!file.mimetype.startsWith('image')){
+    console.log(file.mimetype)
+    return next(new ErrorResponse(`The file uploaded format is ${file.mimetype} is not acceptable`, 400))
+  };
+
+  if (file.size > process.env.MAX_UPLOAD_FILE_SIZE){
+    return next(new ErrorResponse(` File Size ${file.size} is more than acceptable ${process.env.vMAX_UPLOAD_FILE_SIZE}`, 400 ))
+  };
+
+  file.name = `photo._${bootcamps._id}${path.parse(file.name).ext}`;
+
+  file.mv( `${process.env.UPLOAD_FILE_FOLDER}/${file.name}`, async err => {
+    if (err) {
+      return next( new ErrorResponse( 'File upload failed please check file folder and file', 400 ) );
+    };
+
+    await Bootcamp.findByIdAndUpdate( req.param.id, { photo: file.name } );
+    res.status(200).json({
+      success: true, 
+      data: file.name
+    });
+  });
+
+});
+
