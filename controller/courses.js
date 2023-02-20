@@ -2,7 +2,6 @@ const Bootcamp = require('../models/bootcamps');
 const Course = require('../models/courses');
 const ErrorResponse = require('../utils/errorResponse');
 const AsyncHandler = require('../middleware/async');
-const advance_results = require('../middleware/advance_results');
 
 // @desc get course for a specific bootcamp
 // @route /api/v1/bootcamps/:bootcampId/courses
