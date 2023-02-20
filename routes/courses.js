@@ -10,7 +10,7 @@ const router = express.Router({ mergeParams: true });
 
 // course is created using /bootcamps/:bootcampId/courses endpoint
 // course router is used inside the bootcamp router
-router.route('/').get(advance_results(course, 'bootcamp') , getCourses).post(createCourse);
+router.route('/').get(advance_results(course, 'bootcamp'), getCourses).post(createCourse);
 
 router.route('/:id').get(getCourse).put(updateCourse).delete(deleteCourse);
 

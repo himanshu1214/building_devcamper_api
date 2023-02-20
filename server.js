@@ -30,7 +30,6 @@ if (process.env.NODE_ENV == 'development') {
 //Add photo
 app.use(uploadphoto());
 
-
 // Add static folder - Public
 app.use(express.static(path.join(__dirname, 'public')));
 
