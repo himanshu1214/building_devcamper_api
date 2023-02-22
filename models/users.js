@@ -45,5 +45,9 @@ UserSchema.methods.getJWTToken = function(){
   return jwt.sign({ id: this._id}, process.env.JWT_SECRET,  {expiresIn: process.env.JWT_EXPIRE_TIME})
 };
 
+UserSchema.methods.matchPassword = async function (getPassword){
+  return await bcrypt.compare(getPassword, this.password);
+};
+
 
 module.exports = mongoose.model('User', UserSchema);
