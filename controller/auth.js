@@ -21,17 +21,7 @@ exports.register = AsyncHandler(async (req, res, next) => {
         }
     );
 
-  // get token by calling model methods
-  // this getJWTToken has access to the class attributes through this
-  const token = user.getJWTToken();
-
-  // Compare creds
-
-  res.status(200).json({
-    success: true,
-    user_data: user,
-    token: token
-  });
+  sendToken(user, 200,res);
 });
 
 
@@ -58,10 +48,28 @@ if (!user){
 if (!user.matchPassword(password)){
   return next(new ErrorResponse('Invalid Credentials', 401));  
 }
-const token = user.getJWTToken();
+sendToken(user, 200, res);
+});
 
-res.status(200).json({
-  success: true,
-  token: token
-});
-});
+
+const sendToken = (user, statusCode, res) => {
+  // get token by calling model methods
+  // this getJWTToken has access to the class attributes through this
+  const token = user.getJWTToken();
+
+  const options = {
+    expires: new Date(
+      Date.now()  + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000 
+    ),
+    httpOnly: true
+  };
+
+  if (process.env.NODE_ENV=='production'){
+    options.secure = true
+  }
+
+  res.status(statusCode).cookie('token', token, options).json({
+    success: true, 
+    token
+  });
+};
