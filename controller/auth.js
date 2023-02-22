@@ -19,9 +19,15 @@ exports.register = AsyncHandler(async (req, res, next) => {
             password, 
             role
         }
-    )
+    );
+
+  // get token by calling model methods
+  // this getJWTToken has access to the class attributes through this
+  const token = user.getJWTToken();
+
   res.status(200).json({
     success: true,
-    user_data: user
+    user_data: user,
+    token: token
   });
 });
