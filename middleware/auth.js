@@ -5,9 +5,10 @@ const User = require('../models/users');
 
 exports.protect = AsyncHandler(async(req, res, next) => {
     let token;
+    console.log(req.headers.authorization);
 
-    if (!req.headers.Authorization && req.headers.Authorization.startswith('Bearer')){
-        token = req.headers.Authorization.split(' ')[1]
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
+        token = req.headers.authorization.split(' ')[1];
     }
 
     // check if token exist
@@ -15,6 +16,7 @@ exports.protect = AsyncHandler(async(req, res, next) => {
     if (!token){
         return next(new ErrorResponse('Token doesnot exist'), 401);
     }
+
 
     // Verify
 
