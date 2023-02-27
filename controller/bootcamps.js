@@ -51,6 +51,17 @@ exports.updateBootcamp = async (req, res, next) => {
 exports.createBootcamp = async (req, res, next) => {
   // error handling
   try {
+
+    // add user to the body 
+    req.body.user = req.user.id;
+
+    // check the count for published bootcamp,only one is allowed for non-admin
+    const updateBootcamp = await Bootcamp.findOne({ user: req.user.id }); 
+
+    if (updateBootcamp && req.user.role != 'admin'){
+      return next(new ErrorResponse(`the user ${req.user.role} with id ${req.user.id} is not allowed to post more than 1 bootcamp`));
+    };
+
     const bootcamp = await Bootcamp.create(req.body); //mongoose method returns a Promise
     if (!bootcamp) {
       return next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`));
