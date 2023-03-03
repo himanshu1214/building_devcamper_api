@@ -51,12 +51,17 @@ exports.createCourse = AsyncHandler(async (req, res, next) => {
   // error handling
   try {
     req.body.bootcamp = req.params.bootcampId;
+    req.body.user = req.user.id;
 
     const bootcamp = await Bootcamp.findById(req.params.bootcampId);
     if (!bootcamp) {
-      return next(new ErrorResponse(`the courses doesnot exist with the id : ${req.params.bootcampId}`));
+      return next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.bootcampId}`));
     }
 
+    // make sure the bootcamp owner is one creating courses
+    if (bootcamp.user.toString() != req.user.id && bootcamp.user.role != 'admin'){
+      return next(new ErrorResponse(` the user ${req.user.id} is not authorized to create the resource for bootcamp ${bootcamp._id}`, 401));
+    }
     const course = await Course.create(req.body); //mongoose method returns a Promise
 
     res.status(200).json({
@@ -81,6 +86,11 @@ exports.updateCourse = AsyncHandler(async (req, res, next) => {
       return next(new ErrorResponse(`the course doesnot exist with the id : ${req.params.id}`));
     }
 
+    const bootcamp = await Bootcamp.findById(req.params.bootcampId);
+    // make sure the bootcamp owner is one creating courses
+    if (bootcamp.user.toString() != req.user.id && bootcamp.user.role != 'admin'){
+      return next(new ErrorResponse(` the user ${req.user.id} is not authorized to update the resource for bootcamp ${bootcamp._id}`, 401));
+    }
     course = await Course.findOneAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
@@ -104,6 +114,11 @@ exports.deleteCourse = AsyncHandler(async (req, res, next) => {
 
     if (!course) {
       return next(new ErrorResponse(`the course doesnot exist with the id : ${req.params.id}`));
+    }
+    const bootcamp = await Bootcamp.findById(req.params.bootcampId);
+    // make sure the bootcamp owner is one creating courses
+    if (bootcamp.user.toString() != req.user.id && bootcamp.user.role != 'admin'){
+      return next(new ErrorResponse(` the user ${req.user.id} is not authorized to update the resource for bootcamp ${bootcamp._id}`, 401));
     }
     res.status(200).json({ success: true, data: {} });
   } catch (err) {
