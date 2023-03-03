@@ -137,13 +137,18 @@ exports.getBootcampInRadius = AsyncHandler(async (req, res, next) => {
 // @access Private
 
 exports.uploadBootcampPhoto = AsyncHandler(async (req, res, next) => {
-  const bootcamps = await Bootcamp.findById(req.params.id);
-  if (!bootcamps) {
+  const bootcamp = await Bootcamp.findById(req.params.id);
+  if (!bootcamp) {
     return next(new ErrorResponse(`Bootcamp not found with ${req.params.id}`, 404));
   }
 
   if (!req.files) {
     return next(new ErrorResponse(`Please upload an image`, 404));
+  }
+  
+  // check if the logged in user is same bootcamp user, or is admin then update
+  if (bootcamp.user.toString() != req.user.id && bootcamp.user.role != 'admin'){
+    return next(new ErrorResponse(` the user ${req.params.id} is not authorized to delete the resource`, 401));
   }
 
   const file = req.files.file;
