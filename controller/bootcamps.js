@@ -31,14 +31,21 @@ exports.getBootcamp = AsyncHandler(async (req, res, next) => {
 // @access Private
 exports.updateBootcamp = async (req, res, next) => {
   try {
-    const bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    let bootcamp = await Bootcamp.findById(req.params.id);
 
+    console.log(bootcamp.user.toString());
     if (!bootcamp) {
       return next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`));
     }
+
+    if (bootcamp.user.toString() != req.user.id && req.user.role != 'admin') {
+      return next(new ErrorResponse(` the user ${req.params.id} is not authorized to update the resource`, 401));
+    }
+
+    bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
     res.status(200).json({ success: true, data: bootcamp });
   } catch (err) {
     next(err);
@@ -81,11 +88,17 @@ exports.createBootcamp = async (req, res, next) => {
 exports.deleteBootcamp = async (req, res, next) => {
   try {
     const bootcamp = await Bootcamp.findById(req.params.id);
-    bootcamp.remove();
 
     if (!bootcamp) {
       return next(new ErrorResponse(`the bootcamp doesnot exist with the id : ${req.params.id}`));
     }
+
+    // check if the logged in user is same bootcamp user, or is admin then update
+    if (bootcamp.user.toString() != req.user.id && bootcamp.user.role != 'admin'){
+      return next(new ErrorResponse(` the user ${req.params.id} is not authorized to delete the resource`, 401));
+    }
+
+    bootcamp.remove();
     res.status(200).json({ success: true, data: {} });
   } catch (err) {
     next(err);
