@@ -3,6 +3,7 @@ const Course = require('../models/courses');
 const ErrorResponse = require('../utils/errorResponse');
 const AsyncHandler = require('../middleware/async');
 const User = require('../models/users');
+const sendEmail = require('../utils/sendEmail');
 
 // @desc Register User
 // @route POST /api/v1/auth/register
@@ -92,12 +93,30 @@ exports.forgot_password = AsyncHandler( async (req, res, next) => {
     return next(new ErrorResponse('User doesnot exist', 404));
   }
 
-  user_token = user.get_reset_password(); // get user token
+  const user_token = user.get_reset_password(); // get user token
+
+
+  const reset_url = `${req.protocol}://${req.get('host')}/api/v1/reset_password/${user_token}`;
+
+
+
+  const message = `You are receiving as you have requested for reset -password. Please use the before expire to reset pass ${reset_url} `
+
+  try{
+    await sendEmail({
+      email: user.email,
+      subject: 'Password reset token',
+      message
+    });
+    res.status(200).json({ success: true, data: 'Email send' });
+  } catch (err) {
+    user.resetPasswordExpire= undefined,
+    user.resetPasswordToken= undefined
+    await user.save({ validateBeforeSave: false });
+
+    return next( new ErrorResponse('Failed to send the reset token', 500) )
+  }
 
   await user.save({ validateBeforeSave: false }); // save the new user with resetpassword_token and token expire
 
-  res.status(200).json({
-    success: true,
-    tokens: user
-  })
 } );
