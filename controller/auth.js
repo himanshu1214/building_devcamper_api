@@ -82,3 +82,22 @@ exports.login_users = AsyncHandler(async (req, res, next) => {
     data: user
   });
 });
+
+exports.forgot_password = AsyncHandler( async (req, res, next) => {
+
+  console.log(req.body.email);
+  const user = await User.findOne( { email: req.body.email } );
+
+  if (!user) {
+    return next(new ErrorResponse('User doesnot exist', 404));
+  }
+
+  user_token = user.get_reset_password(); // get user token
+
+  await user.save({ validateBeforeSave: false }); // save the new user with resetpassword_token and token expire
+
+  res.status(200).json({
+    success: true,
+    tokens: user
+  })
+} );
