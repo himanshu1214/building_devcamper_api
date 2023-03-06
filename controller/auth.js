@@ -4,6 +4,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const AsyncHandler = require('../middleware/async');
 const User = require('../models/users');
 const sendEmail = require('../utils/sendEmail');
+const crypto = require('crypto');
 
 // @desc Register User
 // @route POST /api/v1/auth/register
@@ -84,10 +85,14 @@ exports.login_users = AsyncHandler(async (req, res, next) => {
   });
 });
 
-exports.forgot_password = AsyncHandler( async (req, res, next) => {
 
-  console.log(req.body.email);
-  const user = await User.findOne( { email: req.body.email } );
+
+// @desc send forgot password to email
+// @route POST /api/v1/auth/forgotpassword
+// @access Public
+exports.forgotPassword = AsyncHandler( async (req, res, next) => {
+
+  const user = await User.findOne( { email: req.body.email } ); // get email from body
 
   if (!user) {
     return next(new ErrorResponse('User doesnot exist', 404));
@@ -96,12 +101,13 @@ exports.forgot_password = AsyncHandler( async (req, res, next) => {
   const user_token = user.get_reset_password(); // get user token
 
 
-  const reset_url = `${req.protocol}://${req.get('host')}/api/v1/reset_password/${user_token}`;
+  const reset_url = `${req.protocol}://${req.get('host')}/api/v1/auth/resetpassword/${user_token}`;
 
 
 
   const message = `You are receiving as you have requested for reset -password. Please use the before expire to reset pass ${reset_url} `
 
+  // send mail back
   try{
     await sendEmail({
       email: user.email,
@@ -120,3 +126,26 @@ exports.forgot_password = AsyncHandler( async (req, res, next) => {
   await user.save({ validateBeforeSave: false }); // save the new user with resetpassword_token and token expire
 
 } );
+
+
+// @desc send forgot password to email
+// @route POST /api/v1/auth/resetpassword/:resettoken
+// @access Public
+exports.resetPassword = AsyncHandler( async ( req, res, next ) => {
+  const resetPasswordToken = crypto.createHash('sha256').update(req.params.resettoken).digest('hex');
+
+  console.log(resetPasswordToken);
+  const user = await User.findOne( { resetPasswordToken, 
+                                resetPasswordExpire: { $gt: Date.now() } } );
+
+  if (!user ) {
+    next( new ErrorResponse( 'Password didnot match or its expired', 404 ) );
+  }
+
+  user.password = req.body.password;
+  user.resetPassword = undefined;
+  user.resetPasswordExpire = undefined;
+  await user.save();
+
+  sendToken(user,200,res);
+})
