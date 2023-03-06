@@ -30,7 +30,6 @@ exports.register = AsyncHandler(async (req, res, next) => {
 // @desc Login User
 // @route POST /api/v1/auth/login
 // @access Public
-
 exports.login = AsyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -54,6 +53,51 @@ sendToken(user, 200, res);
 });
 
 
+// @desc Update Login User details
+// @route PUT /api/v1/auth/update
+// @access Public
+exports.updateDetails = AsyncHandler( async ( req, res, next ) => {
+  const valuesToUpdate = {
+    name: req.body.name,
+    email: req.body.email
+  }
+  const user = await User.findByIdAndUpdate(req.user.id, valuesToUpdate, {
+    new: true,
+    runValidators: true
+  }); // id is populated by protect middleware
+
+  if (!user){
+    return next( new ErrorResponse('Not valid credentials', 401) )
+  }
+
+  res.status(200).json({
+    success: true,
+    data: user
+  });
+
+});
+
+
+// @desc Update Login User Password
+// @route PUt /api/v1/auth/updatepassword
+// @access Public
+exports.updatePassword = AsyncHandler( async ( req, res, next ) => {
+
+  const user = await User.findById( req.user.id ).select('+password'); // id is populated by protect middleware
+  console.log(user.password)
+  if (!(await user.matchPassword(req.body.current_password))){
+    return next( new ErrorResponse('Not valid credentials', 401) )
+  }
+
+  user.password = req.body.new_password;
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    data: user
+  });
+} )
+
 const sendToken = (user, statusCode, res) => {
   // get token by calling model methods
   // this getJWTToken has access to the class attributes through this
@@ -72,7 +116,7 @@ const sendToken = (user, statusCode, res) => {
 
   res.status(statusCode).cookie('token', token, options).json({
     success: true, 
-    token
+    user
   });
 };
 
@@ -143,7 +187,7 @@ exports.resetPassword = AsyncHandler( async ( req, res, next ) => {
   }
 
   user.password = req.body.password;
-  user.resetPassword = undefined;
+  user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
   await user.save();
 
